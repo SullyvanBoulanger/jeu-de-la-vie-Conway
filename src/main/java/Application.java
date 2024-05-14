@@ -3,22 +3,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 public class Application {
     private static Path home = Paths.get("/home/sully/Documents/DiginamicFormation/workspace-spring-tool-suite-4-4.22.0.RELEASE/jeu-de-la-vie-Conway/src/main/java/resources/");
     
-    private static List<Path> configurations = new ArrayList<>(Arrays.asList(
-        home.resolve("init.csv"),
-        home.resolve("ship.csv"),
-        home.resolve("oscillator.csv")
-    ));
+    private static List<Path> configurations = getConfigurations();
+    
+    private static List<Path> getConfigurations(){
+        try {
+            return Files.list(home)
+            .filter(Files::isRegularFile)
+            .sorted(Comparator.comparing(Path::getFileName))
+            .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
 
     public static Path beginMenu(Scanner scanner){
         System.out.println("Bienvenue sur le jeu de la vie de Conway");
@@ -42,6 +50,7 @@ public class Application {
     }
 
     public static int choiceConfiguration(Scanner scanner){
+        clearScreen();
         configurations.forEach(configuration -> {
             try {
                 List<String> allLines = Files.readAllLines(configuration);
@@ -61,10 +70,16 @@ public class Application {
         return choice;
     }
 
+    public static void clearScreen() {  
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
+    }  
+
     public static void generationMenu(Game game, Scanner scanner){
         int choice = -1;
 
         do {
+            clearScreen();
             game.printCurrentGeneration();
             System.out.println("  1. Génération suivante");
             System.out.println("  2. Génération automatique (ctrl + D pour quitter)");
@@ -72,6 +87,7 @@ public class Application {
             choice = scanner.nextInt();
 
             if(choice == 1){
+                clearScreen();
                 game.calculateNextGeneration();
             } else if(choice == 2){
                 runCalculateGeneration(game);
@@ -83,21 +99,18 @@ public class Application {
         Runnable generationrRunnable = new Runnable() {
             @Override
             public void run() {
-                StringBuilder separator = new StringBuilder();
-                int separatorLength = game.getCurrentGeneration().get(0).size() * 2 + 1;
-                IntStream.range(0, separatorLength).forEach(i -> separator.append("_"));
-
-                System.out.println(separator);
+                clearScreen();
                 
                 game.printCurrentGeneration();
                 game.calculateNextGeneration();
             }
         };
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleAtFixedRate(generationrRunnable, 0, 500, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(generationrRunnable, 0, 250, TimeUnit.MILLISECONDS);
     }
 
     public static void main(String[] args) {
+        clearScreen();
         Scanner scanner = new Scanner(System.in);
         Game game = new Game(beginMenu(scanner));
 
