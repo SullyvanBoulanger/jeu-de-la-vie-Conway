@@ -28,10 +28,10 @@ public class Application {
         return new ArrayList<>();
     }
 
-    public static Path beginMenu(Scanner scanner){
+    public static Path welcomeMenu(Scanner scanner){
         System.out.println("Bienvenue sur le jeu de la vie de Conway");
-        System.out.println("  1. Choisir une configuration");
-        System.out.println("  2. Commencer");
+        System.out.println("\t1. Choisir une configuration");
+        System.out.println("\t2. Commencer");
 
         int choice = scanner.nextInt();
         int configurationId = 0;
@@ -39,41 +39,37 @@ public class Application {
             System.out.println("Invalide, veuillez sélectionner un choix du menu :");
             choice = scanner.nextInt();
         }
+
         switch (choice) {
             case 1:
-                configurationId = choiceConfiguration(scanner);
+                configurationId = configurationMenu(scanner);
                 break;
             case 2:
                 return configurations.get(configurationId);
             }
+        
         return configurations.get(configurationId);
     }
 
-    public static int choiceConfiguration(Scanner scanner){
+    public static int configurationMenu(Scanner scanner){
         clearScreen();
         configurations.forEach(configuration -> {
             try {
                 List<String> allLines = Files.readAllLines(configuration);
-                System.out.println("  " + configurations.indexOf(configuration) + ". " + configuration.getFileName());
+                System.out.println("\t" + configurations.indexOf(configuration) + ". " + configuration.getFileName());
                 allLines.forEach(line -> System.out.println(line));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
 
-        System.out.println("Votre choix :");
-        int choice = scanner.nextInt();
-        while (choice < 0 || choice > configurations.size() - 1) {
+        int choice = -1;
+        do{
             System.out.println("Votre choix :");
             choice = scanner.nextInt();
-        }
+        }while (choice < 0 || choice > configurations.size() - 1);
         return choice;
     }
-
-    public static void clearScreen() {  
-        System.out.print("\033[H\033[2J");  
-        System.out.flush();  
-    }  
 
     public static void generationMenu(Game game, Scanner scanner){
         int choice = -1;
@@ -81,9 +77,9 @@ public class Application {
         do {
             clearScreen();
             game.printCurrentGeneration();
-            System.out.println("  1. Génération suivante");
-            System.out.println("  2. Génération automatique (ctrl + D pour quitter)");
-            System.out.println("  3. Quitter");
+            System.out.println("\t1. Génération suivante");
+            System.out.println("\t2. Génération automatique (ctrl + D pour quitter)");
+            System.out.println("\t3. Quitter");
             choice = scanner.nextInt();
 
             if(choice == 1){
@@ -109,10 +105,16 @@ public class Application {
         executorService.scheduleAtFixedRate(generationrRunnable, 0, 250, TimeUnit.MILLISECONDS);
     }
 
+    public static void clearScreen() {  
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
+    }  
+
+
     public static void main(String[] args) {
         clearScreen();
         Scanner scanner = new Scanner(System.in);
-        Game game = new Game(beginMenu(scanner));
+        Game game = new Game(welcomeMenu(scanner));
 
         generationMenu(game, scanner);
         scanner.close();

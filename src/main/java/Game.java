@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 public class Game {
     private List<List<Cell>> currentGeneration;
-    private List<List<List<Cell>>> previousGenerations = new ArrayList<>();
     private int xHintForCreation = 0;
     private int yHintForCreation = 0;
 
@@ -48,14 +47,6 @@ public class Game {
         return new ArrayList<>();
     }
 
-    public List<List<Cell>> getCurrentGeneration() {
-        return currentGeneration;
-    }
-
-    public void setCurrentGeneration(List<List<Cell>> cells) {
-        this.currentGeneration = cells;
-    }
-
     public void calculateNextGeneration(){
         List<List<Cell>> newGeneration = currentGeneration.stream().map(line -> {
                 List<Cell> newLine = line.stream()
@@ -64,7 +55,6 @@ public class Game {
                 return newLine;
             }).collect(Collectors.toList());
         
-        previousGenerations.add(new ArrayList<>(currentGeneration));
         currentGeneration = newGeneration;
     }
 
@@ -83,17 +73,6 @@ public class Game {
             System.out.println(lineBuilder);
         });
     }
-
-    public List<List<List<Cell>>> getPreviousGenerations() {
-        return previousGenerations;
-    }
-
-    // public List<List<Cell>> getPreviousGeneration(int id) {
-    //     if(previousGenerations.size() - id < 0){
-            
-    //     }
-    //     return previousGenerations.get(id);
-    // }
 
     public void printCurrentGeneration(){
         printGeneration(currentGeneration);
