@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Application {
-    private static Path home = Paths.get("/home/sully/Documents/DiginamicFormation/workspace-spring-tool-suite-4-4.22.0.RELEASE/jeu-de-la-vie-Conway/src/main/java/resources/");
+    private static Path home = Paths.get("./src/main/java/resources/");
     
     private static List<Path> configurations = getConfigurations();
     
